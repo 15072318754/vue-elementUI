@@ -13,7 +13,20 @@ import {
   Menu,
   Submenu,
   menuItemGroup,
-  menuItem
+  menuItem,
+  Breadcrumb,
+  breadcrumbItem,
+  Card,
+  Row,
+  Col,
+  Table,
+  TableColumn,
+  Tooltip,
+  Switch,
+  Pagination,
+  Dialog,
+  MessageBox,
+  Tag
 } from 'element-ui'
 Vue.use(Button)
 Vue.use(Form)
@@ -28,8 +41,28 @@ Vue.use(Menu)
 Vue.use(Submenu)
 Vue.use(menuItemGroup)
 Vue.use(menuItem)
+Vue.use(Breadcrumb)
+Vue.use(breadcrumbItem)
+Vue.use(Card)
+Vue.use(Row)
+Vue.use(Col)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(Tooltip)
+Vue.use(Switch)
+Vue.use(Pagination)
+Vue.use(Dialog)
+Vue.use(Tag)
+
+
+
+
+
+
+
 
 
 // 将弹框组件挂载到原型身上
-Vue.prototype.$message=Message
+Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
 

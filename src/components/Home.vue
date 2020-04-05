@@ -13,7 +13,7 @@
       <!-- 左侧 -->
       <el-aside :width="iscollapse ? '64px' : '200px'">
         <!-- 折叠按钮 -->
-        <div class="toggleBtn" @click="toggle">></div>
+        <div class="toggleBtn" @click="toggle($event)">></div>
         <el-menu
           background-color="#333744"
           text-color="#fff"
@@ -22,6 +22,7 @@
           :collapse="iscollapse"
           :collapse-transition="false"
           router
+          :default-active="activePath"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -36,14 +37,16 @@
             </template>
             <!-- 二级菜单 -->
             <el-menu-item
-              :index="'/'+item2.path"
+              :index="'/' + item2.path"
               v-for="item2 in item.children"
               :key="item2.id"
             >
               <!-- 二级菜单的图标和文本 -->
               <template slot="title">
                 <i class="el-icon-menu"></i>
-                <span>{{ item2.authName }}</span>
+                <span @click="activepath('/' + item2.path)">{{
+                  item2.authName
+                }}</span>
               </template>
             </el-menu-item>
           </el-submenu>
@@ -72,15 +75,19 @@ export default {
         145: 'iconfont icon-baobiao'
       },
       // 是否折叠
-      iscollapse: false
+      iscollapse: false,
+      // 当前激活菜单的路径
+      activePath: ''
     }
   },
   // 这个阶段的钩子函数可以访问data里的数据和methods，但页面还没渲染出来，
   // 在这个生命周期函数中，经常可以发ajax
   created() {
     this.getMenu()
+    this.activePath = window.sessionStorage.getItem('activePath')
   },
   methods: {
+    // 退出
     logout() {
       window.sessionStorage.clear('token')
       this.$router.push('/login')
@@ -88,13 +95,27 @@ export default {
     // 获取左侧菜单权限
     async getMenu() {
       const { data: res } = await this.$http.get('menus')
-      console.log(res)
+      // console.log(res)
       if (res.meta.status !== 200) return this.$message.error('获取数据失败')
       // 将获取到的数据挂载到自己的私有数据data里
       this.menulist = res.data
     },
-    toggle() {
-      this.iscollapse = !this.iscollapse
+    // 点击切换折叠
+    toggle(e) {
+      // console.log(e.target.innerHTML)
+      if (this.iscollapse === false) {
+        e.target.innerHTML = '<'
+        this.iscollapse = true
+      } else if (this.iscollapse === true) {
+        this.iscollapse = false
+        e.target.innerHTML = '>'
+      }
+      // this.iscollapse = !this.iscollapse
+    },
+    // 点击二级菜单 保存链接的激活状态
+    activepath(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
     }
   }
 }
@@ -123,7 +144,7 @@ export default {
   background-color: #262934;
   .toggleBtn {
     background-color: pink;
-    width: 20px;
+    width: 100%;
     height: 20px;
     text-align: center;
     cursor: pointer;
@@ -131,6 +152,9 @@ export default {
   .el-menu {
     border-right: none;
   }
+}
+.el-main {
+  background-color: #eee;
 }
 .iconfont {
   margin-right: 15px;
