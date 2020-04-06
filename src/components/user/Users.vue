@@ -61,12 +61,13 @@
               <el-tooltip
                 content="分配权限"
                 placement="top-start"
-                :enterable="true"
+                :enterable="false"
               >
                 <el-button
                   type="warning"
                   icon="el-icon-setting"
                   size="mini"
+                  @click="showRoleDialog(scope.row)"
                 ></el-button>
               </el-tooltip>
             </div>
@@ -150,6 +151,35 @@
         <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 分配权限对话框 -->
+    <el-dialog
+      title="分配权限"
+      :visible.sync="setRoleDialog"
+      width="30%"
+      @close="setRoleDialogClose"
+    >
+      <div>
+        <p>当前的用户: {{ userInfo.username }}</p>
+        <p>当前的角色: {{ userInfo.role_name }}</p>
+        <p>
+          分配新角色:
+          <!-- 级联选择器 -->
+          <el-select v-model="selectId" placeholder="请选择">
+            <el-option
+              v-for="item in rolelist"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialog = false">取 消</el-button>
+        <el-button type="primary" @click="setRole()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -217,7 +247,15 @@ export default {
       // 修改对话框默认隐藏
       editdialogVisibleFlag: false,
       // 表单的默认数据
-      editForm: {}
+      editForm: {},
+      // 分配权限对话框
+      setRoleDialog: false,
+      // 用户信息
+      userInfo: {},
+      // 角色列表数据
+      rolelist: [],
+      // 已选中的角色id
+      selectId: ''
     }
   },
   created() {
@@ -254,7 +292,7 @@ export default {
       const { data: res } = await this.$http.put(
         `users/${userInfo.id}/state/${userInfo.mg_state}`
       )
-      console.log(res)
+      // console.log(res)
       if (res.meta.status !== 200) {
         // 如果请求失败就不改变页面的状态
         userInfo.mg_state = !userInfo.mg_state
@@ -328,7 +366,7 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('删除失败')
       this.$message.success('删除成功')
       // 这种情况适用于每页显示一条数据，当如果数据剩1条了，删完后就要跳转到上一页
-      console.log(this.userlist, this.queryInfo.pagenum)
+      // console.log(this.userlist, this.queryInfo.pagenum)
       // 如果当前页不是第一页，我们就开始处理
       if (this.queryInfo.pagenum !== 1) {
         // 如果当前页只有1条数据 就将当前页码减1
@@ -337,6 +375,44 @@ export default {
         }
       }
       this.getuserlist()
+    },
+    // 展示分配权限对话框
+    async showRoleDialog(role) {
+      // console.log(role)
+      this.userInfo = role
+      // 获取角色列表数据
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表数据失败')
+      }
+      this.$message.success('获取角色列表数据成功')
+      // console.log(res)
+      this.rolelist = res.data
+      this.setRoleDialog = true
+    },
+    // 点击确定分配权限
+    async setRole() {
+      // 不能为空
+      if (!this.selectId) {
+        return this.$message.error('请选择要分配的角色')
+      }
+      const { data: res } = await this.$http.put(
+        `users/${this.userInfo.id}/role`,
+        {
+          rid: this.selectId
+        }
+      )
+      if (res.meta.status !== 200) {
+        return this.$message.error('更新角色失败')
+      }
+      this.$message.success('更新角色成功')
+      this.getuserlist()
+      this.setRoleDialog = false
+    },
+    // 监听关闭事件
+    setRoleDialogClose() {
+      this.userInfo = {}
+      this.selectId = ''
     }
   }
 }

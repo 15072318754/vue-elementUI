@@ -26,7 +26,10 @@ import {
   Pagination,
   Dialog,
   MessageBox,
-  Tag
+  Tag,
+  Tree,
+  Select,
+  Option
 } from 'element-ui'
 Vue.use(Button)
 Vue.use(Form)
@@ -53,6 +56,9 @@ Vue.use(Switch)
 Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.use(Tag)
+Vue.use(Tree)
+Vue.use(Select)
+Vue.use(Option)
 
 
 
