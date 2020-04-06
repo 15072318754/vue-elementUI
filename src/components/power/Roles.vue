@@ -81,6 +81,7 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
+                @click="deleteRole(scope.row.id)"
               ></el-button>
               <el-tooltip
                 content="分配权限"
@@ -121,12 +122,25 @@
         </span>
       </el-dialog>
       <!-- 添加角色对话框 -->
-      <el-dialog title="添加角色" :visible.sync="addrightdialog" width="50%">
+      <el-dialog title="添加角色" :visible.sync="addroledialog" width="50%">
+        <!-- 表单 -->
+        <el-form
+          :model="roleform"
+          :rules="roleformrules"
+          ref="roleformref"
+          label-width="100px"
+          class="demo-ruleForm"
+        >
+          <el-form-item label="角色名称" prop="roleName">
+            <el-input v-model="roleform.roleName"></el-input>
+          </el-form-item>
+          <el-form-item label="角色描述" prop="roleDesc">
+            <el-input v-model="roleform.roleDesc"></el-input>
+          </el-form-item>
+        </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="addrightdialog = false">取 消</el-button>
-          <el-button type="primary" @click="addrightdialog = false"
-            >确 定</el-button
-          >
+          <el-button @click="addroledialog = false">取 消</el-button>
+          <el-button type="primary" @click="addrole">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -155,7 +169,23 @@ export default {
       // 即将被分配权限的id
       roleId: [],
       // 添加角色对话框
-      addrightdialog: false
+      addroledialog: false,
+      // 表单对象
+      roleform: {
+        roleName: '',
+        roleDesc: ''
+      },
+      // 表单校验
+      roleformrules: {
+        roleName: [
+          { required: true, message: '请输入角色名称', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        ],
+        roleDesc: [
+          { required: true, message: '请输入角色描述', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
@@ -253,7 +283,42 @@ export default {
     },
     // 点击添加角色按钮
     showaddrightdialog() {
-      this.addrightdialog = true
+      this.addroledialog = true
+    },
+    // 添加角色
+    addrole() {
+      this.$refs.roleformref.validate(async valid => {
+        if (!valid) return
+        const { data: res } = await this.$http.post('roles', this.roleform)
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加角色失败')
+        }
+        this.$message.success('添加角色成功')
+        this.getroleslist()
+        this.addroledialog = false
+      })
+    },
+    // 删除角色
+    async deleteRole(roleid) {
+      const confirmRes = await this.$confirm(
+        '此操作将永久删除该文件, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch(err => err)
+      // console.log(confirmRes)
+      if (confirmRes !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const { data: res } = await this.$http.delete(`roles/${roleid}`)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除失败')
+      }
+      this.$message.success('删除成功')
+      this.getroleslist()
     }
   }
 }
