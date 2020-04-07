@@ -12,8 +12,11 @@ import './assets/fonts/iconfont.css'
 import axios from 'axios'
 // 面包屑
 import Mbx from './components/Mbx.vue'
+import TreeTable from 'vue-table-with-tree-grid'
 // 注册为全局组件
 Vue.component('Mbxs', Mbx)
+Vue.component('tree-table', TreeTable)
+
 
 // 配置基准地址
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
