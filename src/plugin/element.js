@@ -32,7 +32,11 @@ import {
   Option,
   Cascader,
   Tabs,
-  TabPane
+  TabPane,
+  Steps,
+  Step,
+  CheckboxGroup,
+  Checkbox
 } from 'element-ui'
 Vue.use(Button)
 Vue.use(Form)
@@ -65,6 +69,10 @@ Vue.use(Option)
 Vue.use(Cascader)
 Vue.use(Tabs)
 Vue.use(TabPane)
+Vue.use(Steps)
+Vue.use(Step)
+Vue.use(CheckboxGroup)
+Vue.use(Checkbox)
 
 
 
