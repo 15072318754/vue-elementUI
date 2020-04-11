@@ -93,15 +93,45 @@
               <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <el-upload
+              action="http://127.0.0.1:8888/api/private/v1/upload"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              list-type="picture"
+              :headers="headerobj"
+              :on-success="picuploadsuccess"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">
+                只能上传jpg/png文件，且不超过500kb
+              </div>
+            </el-upload>
+          </el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本编辑器 -->
+            <quill-editor v-model="addgoodsForm.goods_introduce">
+            </quill-editor>
+            <el-button type="primary" class="addbtn" @click="addbtn"
+              >添加商品</el-button
+            >
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+    <!-- 图片预览 -->
+    <el-dialog
+      title="图片预览"
+      :visible.sync="previewdialogVisible"
+      width="50%"
+    >
+      <img :src="previewPath" alt="" class="previewImg" />
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import _ from 'lodash'
 export default {
   data() {
     return {
@@ -115,7 +145,14 @@ export default {
         goods_price: 0,
         goods_weight: 0,
         goods_number: 0,
-        goods_cat: ''
+        // 分类列表
+        goods_cat: [],
+        // 图片数组
+        pics: [],
+        // 富文本编辑的器的内容
+        goods_introduce: '',
+        // 商品的参数（数组），包含 动态参数 和 静态属性
+        attrs: []
       },
       //   表单验证
       addgoodsFormrules: {
@@ -140,9 +177,15 @@ export default {
         children: 'children',
         label: 'cat_name'
       },
-      //   动态参数
+      // 动态参数
       manytabdata: [],
-      onlytabdata: []
+      onlytabdata: [],
+      // 组件上传时并不是用axios发送请求，这里为upload属性添加headers请求头
+      headerobj: { Authorization: window.sessionStorage.getItem('token') },
+      //   图片预览地址
+      previewPath: '',
+      //   图片预览对话框
+      previewdialogVisible: false
     }
   },
   created() {
@@ -212,6 +255,75 @@ export default {
 
         this.onlytabdata = res.data
       }
+    },
+    //   预览图片的处理函数
+    handlePreview(res) {
+      //   console.log(res)
+      this.previewPath = res.response.data.url
+      this.previewdialogVisible = true
+    },
+    // 移除图片的处理函数
+    handleRemove(res) {
+      //   console.log(res)
+      //  删除的图片的临时路径
+      const filepath = res.response.data.tmp_path
+      //   遍历，找到图片对应的下标
+      const i = this.addgoodsForm.pics.findIndex(x => x.pic === filepath)
+      this.addgoodsForm.pics.splice(i, 1)
+      //   console.log(this.addgoodsForm)
+    },
+    // 上传成功之后的处理函数
+    picuploadsuccess(response) {
+      // 拼接一个图片对象
+      //   console.log(response)
+      const picinfo = { pic: response.data.tmp_path }
+      //   将图片信息追加到数组中去
+      this.addgoodsForm.pics.push(picinfo)
+      //   console.log(this.addgoodsForm)
+    },
+    // 添加商品
+    addbtn() {
+      this.$refs.addgoodsFormref.validate(async valid => {
+        if (!valid) return this.$message.error('请填写必要的表单项')
+        // 级联选择框数组问题  , 提交的时候需要提交的是字符串,
+        // 但是级联选择框要的是一个数组,不能直接操作add.form中的数组了
+        // 这里利用lodash插件进行深拷贝_.cloneDeep(value)
+        const deepForm = _.cloneDeep(this.addgoodsForm)
+        // 将goods_cat 转为字符串
+        deepForm.goods_cat = deepForm.goods_cat.join(',')
+        // 处理动态参数
+        // manytabdata中的 attr_vals(是一个数组,需要join转为字符串)
+        this.manytabdata.forEach(item => {
+          //   console.log(item)
+          const manyInfo = {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals.join(' ')
+          }
+          //   console.log(manyInfo)
+          this.addgoodsForm.attrs.push(manyInfo)
+        })
+        // 处理静态参数
+        // manytabdata中的 attr_vals(默认就是字符串)
+        this.onlytabdata.forEach(item => {
+          //   console.log(item)
+          const onlyInfo = {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals
+          }
+          //   console.log(onlyInfo)
+          this.addgoodsForm.attrs.push(onlyInfo)
+        })
+        deepForm.attrs = this.addgoodsForm.attrs
+
+        console.log(deepForm)
+        // 发请求
+        const { data: res } = await this.$http.post('goods', deepForm)
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加商品失败')
+        }
+        this.$message.success('添加商品成功')
+        this.$router.push('/goods')
+      })
     }
   },
   computed: {
@@ -235,5 +347,11 @@ export default {
 }
 .el-checkbox {
   margin: 0 10px 10px 0;
+}
+.previewImg {
+  width: 100%;
+}
+.addbtn {
+  margin-top: 10px;
 }
 </style>

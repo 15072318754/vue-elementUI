@@ -1,25 +1,30 @@
-html,body,#app {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    min-width: 1366px;
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  min-width: 1366px;
 }
 .el-breadcrumb {
-    margin-bottom: 12px;
-    font-size: 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
 }
 .el-card {
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15)!important;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15) !important;
 }
 .el-row {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 .el-table {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 .el-pagination {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 .el-cascader-menu {
-    height: 240px;
+  height: 240px;
+}
+.ql-editor {
+  height: 300px!important;
 }

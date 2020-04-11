@@ -13,6 +13,10 @@ import axios from 'axios'
 // 面包屑
 import Mbx from './components/Mbx.vue'
 import TreeTable from 'vue-table-with-tree-grid'
+import VueQuillEditor from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 // 注册为全局组件
 Vue.component('Mbxs', Mbx)
 Vue.component('tree-table', TreeTable)
@@ -28,12 +32,17 @@ axios.interceptors.request.use(config => {
 })
 // 把axios挂载到实例上
 Vue.prototype.$http = axios
+// 没有Vue.config.productionTip = false这句代码，它会显示你生产模式的消息
+// 有了这句代码，它会阻止你显示显示生产模式的消息
 Vue.config.productionTip = false
+// 注册富文本编辑器
+Vue.use(VueQuillEditor)
+// 日期过滤器
 Vue.filter('dataformate', function (time) {
   const dt = new Date(time)
   const y = dt.getFullYear()
   const m = (dt.getMonth() + 1 + '').padStart(2, '0')
-  const d = (dt.getDate()+'').padStart(2, '0')
+  const d = (dt.getDate() + '').padStart(2, '0')
 
   const hh = (dt.getHours() + '').padStart(2, '0')
   const mm = (dt.getMinutes() + '').padStart(2, '0')
