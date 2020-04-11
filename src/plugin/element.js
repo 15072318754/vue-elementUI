@@ -80,14 +80,6 @@ Vue.use(Upload)
 Vue.use(Timeline)
 Vue.use(TimelineItem)
 
-
-
-
-
-
-
-
-
 // 将弹框组件挂载到原型身上
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

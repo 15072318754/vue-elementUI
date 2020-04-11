@@ -159,6 +159,7 @@
       :title="'添加' + titletext"
       :visible.sync="addparamsdialog"
       width="50%"
+      @close="addparamsclose"
     >
       <!-- 表单 -->
       <el-form
@@ -166,11 +167,12 @@
         :rules="addparamsFormrules"
         ref="addparamsFormref"
         label-width="100px"
-        class="demo-ruleForm"
-        @close="addparamsclose"
       >
         <el-form-item label="活动名称" prop="attr_name">
-          <el-input v-model="addparamsForm.attr_name"></el-input>
+          <el-input
+            v-model="addparamsForm.attr_name"
+            class="addparaminput"
+          ></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -194,7 +196,10 @@
         @close="editparamsclose"
       >
         <el-form-item label="活动名称" prop="attr_name">
-          <el-input v-model="editparamsForm.attr_name"></el-input>
+          <el-input
+            v-model="editparamsForm.attr_name"
+            class="addparaminput"
+          ></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -306,7 +311,7 @@ export default {
     },
     // 监听对话框的关闭事件
     addparamsclose() {
-      this.$refs.addparamsFormref.resetfields()
+      this.$refs.addparamsFormref.resetFields()
     },
     // 添加参数按钮
     addparams() {
@@ -355,7 +360,7 @@ export default {
     },
     // 点击删除分类按钮
     async deleparam(id) {
-      console.log(id)
+      // console.log(id)
 
       const confirmres = await this.$confirm(
         '此操作将永久删除该文件, 是否继续?',
@@ -375,7 +380,7 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('删除参数失败')
       }
-      console.log(res)
+      // console.log(res)
       this.$message.success('删除参数成功')
       this.getparamsdata()
     },
@@ -462,5 +467,8 @@ export default {
 }
 .el-input {
   width: 120px;
+}
+.addparaminput {
+  width: 100%;
 }
 </style>
